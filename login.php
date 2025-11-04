@@ -64,7 +64,7 @@ if (isset($_POST['login'])) {
     }
 
     .left img {
-        width: 400px;
+        width: 360px;
         margin-bottom: 1px;
     }
 

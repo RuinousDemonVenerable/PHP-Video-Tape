@@ -54,7 +54,7 @@ if (isset($_POST['register'])) {
     }
 
     .left img {
-        width: 400px;
+        width: 360px;
         margin-bottom: 1px;
     }
 
