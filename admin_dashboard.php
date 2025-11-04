@@ -2,159 +2,194 @@
 session_start();
 include 'connect.php';
 
-// Cek role admin
+// Check admin access
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
     header("Location: login.php");
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<title>Admin Dashboard - Random Play</title>
+<style>
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { margin: 0; background: #fff; color: #000; }
+    header {
+        background: #000;
+        color: #fff;
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    header h1 { font-size: 20px; letter-spacing: 2px; }
+    header a {
+        background: #fff; color: #000; text-decoration: none;
+        padding: 8px 16px; border-radius: 4px; border: 1px solid #000;
+        transition: 0.3s; font-size: 14px;
+    }
+    header a:hover { background: #000; color: #fff; }
+    .container { padding: 30px 50px; }
+    nav { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+    nav button {
+        background: none; border: none; color: #000; font-size: 16px;
+        font-weight: bold; cursor: pointer; padding: 8px 16px; border-radius: 4px; transition: 0.3s;
+    }
+    nav button.active, nav button:hover { background: #000; color: #fff; }
+    .tab { display: none; animation: fade 0.3s ease-in-out; }
+    .tab.active { display: block; }
+    @keyframes fade { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #000; padding: 10px; text-align: left; }
+    th { background: #000; color: #fff; }
+    tr:nth-child(even) { background: #f8f8f8; }
+    .btn {
+        padding: 5px 10px; border-radius: 3px; text-decoration: none; font-size: 13px; color: #fff; transition: 0.2s;
+        display: inline-block;
+    }
+    .btn-edit { background: #28a745; }
+    .btn-delete { background: #dc3545; }
+    .btn-add {
+        background: #000; color: #fff; text-decoration: none;
+        padding: 8px 14px; border-radius: 4px; display: inline-block; margin-bottom: 15px;
+    }
+    .btn-add:hover { background: #333; }
+</style>
+<script>
+    function showTab(tabName) {
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        document.getElementById(tabName + '-btn').classList.add('active');
+    }
+    window.onload = function() { showTab('movies'); };
+</script>
 </head>
 <body>
-<div class="container mt-4">
-    <h2>Welcome, <?php echo $_SESSION['name']; ?> (Admin)</h2>
-    <a href="logout.php" class="btn btn-danger mb-3">Logout</a>
 
-    <!-- TAB MENU -->
-    <ul class="nav nav-tabs mb-3" id="adminTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="customers-tab" data-bs-toggle="tab" data-bs-target="#customers" type="button" role="tab">Customers</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="movies-tab" data-bs-toggle="tab" data-bs-target="#movies" type="button" role="tab">Movies</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="rentals-tab" data-bs-toggle="tab" data-bs-target="#rentals" type="button" role="tab">Rentals</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab">Payments</button>
-      </li>
-    </ul>
+<header>
+    <h1>RANDOM PLAY | ADMIN DASHBOARD</h1>
+    <a href="logout.php">Logout</a>
+</header>
 
-    <div class="tab-content" id="adminTabContent">
-        <!-- Customers Tab -->
-        <div class="tab-pane fade show active" id="customers" role="tabpanel">
-            <a href="add_customer.php" class="btn btn-success mb-2">Tambah Customer</a>
-            <table class="table table-bordered">
-                <thead>
+<div class="container">
+    <nav>
+        <button id="movies-btn" onclick="showTab('movies')">Movies</button>
+        <button id="customers-btn" onclick="showTab('customers')">Customers</button>
+        <button id="rentals-btn" onclick="showTab('rentals')">Rentals</button>
+        <button id="payments-btn" onclick="showTab('payments')">Payments</button>
+    </nav>
+
+    <!-- MOVIES TAB -->
+    <div id="movies" class="tab">
+        <h2>Movies</h2>
+        <a href="add_movie.php" class="btn-add">+ Add Movie</a>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Title</th><th>Genre</th><th>Year</th><th>Rating</th><th>Price</th><th>Copies</th><th>Poster</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                <?php
+                $movies = mysqli_query($conn, "SELECT * FROM movies ORDER BY movie_id ASC");
+                while ($m = mysqli_fetch_assoc($movies)) { ?>
                     <tr>
-                        <th>ID</th><th>Nama</th><th>Email</th><th>Phone</th><th>Address</th><th>Join Date</th><th>Aksi</th>
+                        <td><?= $m['movie_id'] ?></td>
+                        <td><?= $m['title'] ?></td>
+                        <td><?= $m['genre'] ?></td>
+                        <td><?= $m['year'] ?></td>
+                        <td><?= $m['rating'] ?></td>
+                        <td><?= $m['price'] ?></td>
+                        <td><?= $m['copies_available'] ?></td>
+                        <td><img src="uploads/<?= $m['poster'] ?>" width="50"></td>
+                        <td>
+                            <a href="edit_movie.php?id=<?= $m['movie_id'] ?>" class="btn btn-edit">Edit</a>
+                            <a href="delete_movie.php?id=<?= $m['movie_id'] ?>" class="btn btn-delete" onclick="return confirm('Delete this movie?');">Delete</a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    $customers = mysqli_query($conn, "SELECT * FROM customers ORDER BY customer_id ASC");
-                    while($c = mysqli_fetch_assoc($customers)) { ?>
-                        <tr>
-                            <td><?php echo $c['customer_id']; ?></td>
-                            <td><?php echo $c['first_name'] . ' ' . $c['last_name']; ?></td>
-                            <td><?php echo $c['email']; ?></td>
-                            <td><?php echo $c['phone']; ?></td>
-                            <td><?php echo $c['address']; ?></td>
-                            <td><?php echo $c['join_date']; ?></td>
-                            <td>
-                                <a href="edit_customer.php?id=<?php echo $c['customer_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="delete_customer.php?id=<?php echo $c['customer_id']; ?>" class="btn btn-danger btn-sm">Delete</a>
-                            </td>
-                        </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
 
-        <!-- Movies Tab -->
-        <div class="tab-pane fade" id="movies" role="tabpanel">
-            <a href="add_movie.php" class="btn btn-success mb-2">Tambah Movie</a>
-            <table class="table table-bordered">
-                <thead>
+    <!-- CUSTOMERS TAB -->
+    <div id="customers" class="tab">
+        <h2>Customers</h2>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Join Date</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                <?php
+                $customers = mysqli_query($conn, "SELECT * FROM customers ORDER BY customer_id ASC");
+                while ($c = mysqli_fetch_assoc($customers)) { ?>
                     <tr>
-                        <th>ID</th><th>Title</th><th>Genre</th><th>Year</th><th>Rating</th><th>Price</th><th>Copies</th><th>Poster</th><th>Aksi</th>
+                        <td><?= $c['customer_id'] ?></td>
+                        <td><?= $c['first_name'] . ' ' . $c['last_name'] ?></td>
+                        <td><?= $c['email'] ?></td>
+                        <td><?= $c['phone'] ?></td>
+                        <td><?= $c['address'] ?></td>
+                        <td><?= $c['join_date'] ?></td>
+                        <td>
+                            <a href="edit_customer.php?id=<?= $c['customer_id'] ?>" class="btn btn-edit">Edit</a>
+                            <a href="delete_customer.php?id=<?= $c['customer_id'] ?>" class="btn btn-delete" onclick="return confirm('Delete this customer?');">Delete</a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    $movies = mysqli_query($conn, "SELECT * FROM movies ORDER BY movie_id ASC");
-                    while($m = mysqli_fetch_assoc($movies)) { ?>
-                        <tr>
-                            <td><?php echo $m['movie_id']; ?></td>
-                            <td><?php echo $m['title']; ?></td>
-                            <td><?php echo $m['genre']; ?></td>
-                            <td><?php echo $m['year']; ?></td>
-                            <td><?php echo $m['rating']; ?></td>
-                            <td><?php echo $m['price']; ?></td>
-                            <td><?php echo $m['copies_available']; ?></td>
-                            <td><img src="uploads/<?php echo $m['poster']; ?>" width="50"></td>
-                            <td>
-                                <a href="edit_movie.php?id=<?php echo $m['movie_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="delete_movie.php?id=<?php echo $m['movie_id']; ?>" class="btn btn-danger btn-sm">Delete</a>
-                            </td>
-                        </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
 
-        <!-- Rentals Tab -->
-        <div class="tab-pane fade" id="rentals" role="tabpanel">
-            <table class="table table-bordered">
-                <thead>
+    <!-- RENTALS TAB -->
+    <div id="rentals" class="tab">
+        <h2>Rentals</h2>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Customer</th><th>Movie</th><th>Rental Date</th><th>Return Date</th><th>Status</th><th>Late Fee</th></tr>
+            </thead>
+            <tbody>
+                <?php
+                $rentals = mysqli_query($conn, "SELECT r.*, c.first_name, c.last_name, m.title FROM rentals r 
+                    JOIN customers c ON r.customer_id=c.customer_id 
+                    JOIN movies m ON r.movie_id=m.movie_id ORDER BY r.rental_id ASC");
+                while ($r = mysqli_fetch_assoc($rentals)) { ?>
                     <tr>
-                        <th>ID</th><th>Customer</th><th>Movie</th><th>Rental Date</th><th>Return Date</th><th>Status</th><th>Late Fee</th>
+                        <td><?= $r['rental_id'] ?></td>
+                        <td><?= $r['first_name'] . ' ' . $r['last_name'] ?></td>
+                        <td><?= $r['title'] ?></td>
+                        <td><?= $r['rental_date'] ?></td>
+                        <td><?= $r['return_date'] ?></td>
+                        <td><?= $r['status'] ?></td>
+                        <td><?= $r['late_fee'] ?></td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    $rentals = mysqli_query($conn, "SELECT r.*, c.first_name, c.last_name, m.title FROM rentals r 
-                        JOIN customers c ON r.customer_id=c.customer_id 
-                        JOIN movies m ON r.movie_id=m.movie_id 
-                        ORDER BY r.rental_id ASC");
-                    while($r = mysqli_fetch_assoc($rentals)) { ?>
-                        <tr>
-                            <td><?php echo $r['rental_id']; ?></td>
-                            <td><?php echo $r['first_name'].' '.$r['last_name']; ?></td>
-                            <td><?php echo $r['title']; ?></td>
-                            <td><?php echo $r['rental_date']; ?></td>
-                            <td><?php echo $r['return_date']; ?></td>
-                            <td><?php echo $r['status']; ?></td>
-                            <td><?php echo $r['late_fee']; ?></td>
-                        </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
 
-        <!-- Payments Tab -->
-        <div class="tab-pane fade" id="payments" role="tabpanel">
-            <table class="table table-bordered">
-                <thead>
+    <!-- PAYMENTS TAB -->
+    <div id="payments" class="tab">
+        <h2>Payments</h2>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Rental ID</th><th>Amount</th><th>Payment Date</th><th>Method</th></tr>
+            </thead>
+            <tbody>
+                <?php
+                $payments = mysqli_query($conn, "SELECT * FROM payments ORDER BY payment_id ASC");
+                while ($p = mysqli_fetch_assoc($payments)) { ?>
                     <tr>
-                        <th>ID</th><th>Rental ID</th><th>Amount</th><th>Payment Date</th><th>Payment Method</th>
+                        <td><?= $p['payment_id'] ?></td>
+                        <td><?= $p['rental_id'] ?></td>
+                        <td><?= $p['amount'] ?></td>
+                        <td><?= $p['payment_date'] ?></td>
+                        <td><?= $p['payment_method'] ?></td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    $payments = mysqli_query($conn, "SELECT * FROM payments ORDER BY payment_id ASC");
-                    while($p = mysqli_fetch_assoc($payments)) { ?>
-                        <tr>
-                            <td><?php echo $p['payment_id']; ?></td>
-                            <td><?php echo $p['rental_id']; ?></td>
-                            <td><?php echo $p['amount']; ?></td>
-                            <td><?php echo $p['payment_date']; ?></td>
-                            <td><?php echo $p['payment_method']; ?></td>
-                        </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
+                <?php } ?>
+            </tbody>
+        </table>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
