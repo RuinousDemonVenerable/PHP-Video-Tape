@@ -35,27 +35,153 @@ if (isset($_POST['login'])) {
     $message = "Email atau password salah!";
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Login</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<title>Login - Random Play</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        display: flex;
+        height: 100vh;
+    }
+
+    /* Left Section */
+    .left {
+        background-color: #000;
+        color: #fff;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .left img {
+        width: 360px;
+        margin-bottom: 1px;
+    }
+
+    .left h2 {
+        font-size: 24px;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+    }
+
+    .left p {
+        font-size: 12px;
+        position: absolute;
+        bottom: 20px;
+    }
+
+    /* Right Section */
+    .right {
+        flex: 1;
+        background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-box {
+        width: 300px;
+    }
+
+    h2 {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        background-color: #000;
+        color: #fff;
+        font-size: 16px;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #333;
+    }
+
+    .signup-text {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 13px;
+    }
+
+    .signup-text a {
+        color: red;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .signup-text a:hover {
+        text-decoration: underline;
+    }
+
+    .error {
+        color: red;
+        text-align: center;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+</style>
 </head>
-<body class="bg-light">
-<div class="container mt-5">
-    <div class="card shadow p-4 mx-auto" style="max-width: 400px;">
-        <h3 class="text-center">Login</h3>
-        <form method="POST">
-            <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
-            <input type="password" name="password" class="form-control mb-3" placeholder="Password" required>
-            <button type="submit" name="login" class="btn btn-primary w-100">Login</button>
-        </form>
-        <?php if($message): ?>
-            <p class="text-danger text-center mt-2"><?= $message ?></p>
-        <?php endif; ?>
-        <p class="text-center mt-3">Belum punya akun? <a href="register.php">Daftar</a></p>
+<body>
+<div class="container">
+    <div class="left">
+        <img src="uploads/randomplay_logo.jpg" alt="Random Play Logo">
+        <h2>RANDOM PLAY</h2>
+        <p>copyright © 2024 Random Play All Rights Reserved</p>
+    </div>
+
+    <div class="right">
+        <div class="login-box">
+            <h2>LOGIN</h2>
+            <form method="POST">
+                <label>Email</label>
+                <input type="email" name="email" required>
+
+                <label>Password</label>
+                <input type="password" name="password" required>
+
+                <button type="submit" name="login">Login</button>
+
+                <?php if ($message): ?>
+                    <p class="error"><?= $message ?></p>
+                <?php endif; ?>
+
+                <p class="signup-text">I don't have an account? <a href="register.php">Sign Up</a></p>
+            </form>
+        </div>
     </div>
 </div>
 </body>
